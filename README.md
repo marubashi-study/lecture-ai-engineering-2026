@@ -28,6 +28,7 @@ AIエンジニアリング実践講座（AIE2026）の演習と宿題で使う�
 ```bash
 uv run pytest -q
 uv run python -m app.ask "LoRAとは何ですか？"
+uv run python -m app.ask --interactive
 ```
 
 詳しい手順は [lectures/01/problem.md](lectures/01/problem.md) を見てください。
