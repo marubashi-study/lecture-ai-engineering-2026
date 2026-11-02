@@ -5,6 +5,7 @@
 """
 
 import json
+import random
 from functools import cache
 from pathlib import Path
 
@@ -72,8 +73,56 @@ def get_lecture_summary(lecture: int) -> str:
 
     「第3回では何を学ぶ？」のように、回の内容や関係を聞かれたときに使う。
     """
+    if lecture < 1:
+        return "講義回は1以上の整数で指定してください。"
+
     path = DATA_DIR / "lectures" / f"{lecture:02d}.md"
     if not path.exists():
         available = sorted(p.stem for p in (DATA_DIR / "lectures").glob("*.md"))
         return f"第{lecture}回の要点はまだありません。用意されている回: {', '.join(available)}"
     return path.read_text(encoding="utf-8")
+
+
+def make_quiz(lecture: int) -> str:
+    """指定した回の用語から1つを選び、確認問題と答えを返す。
+
+    「第2回の確認問題を出して」のように、講義回を指定した復習用の
+    問題を求められたときに使う。
+    """
+    if lecture < 1:
+        return "講義回は1以上の整数で指定してください。"
+
+    terms = [term for term in load_glossary() if term["lecture"] == lecture]
+    if not terms:
+        return f"第{lecture}回の用語が用語集にありません。別の回を指定してください。"
+
+    term = random.choice(terms)
+    return json.dumps(
+        {
+            "question": f"「{term['term']}」の意味は？",
+            "answer": term["definition"],
+        },
+        ensure_ascii=False,
+    )
+
+
+def ice_break(character: str, topic: str | None = None) -> str:
+    """キャラクター設定と人間以外の生物を題材に、会話冒頭の挨拶を作る材料を返す。
+
+    題材を省略すると、動物など人間以外の生物から選ぶ。
+    例: character="関西弁の宇宙飛行士", topic="ペンギン"。
+    会話の始まりや回答に短いアイスブレイクを添えるときに使う。
+    """
+    character = character.strip()
+    if not character:
+        return "アイスブレイクを作るため、キャラクター設定を指定してください。"
+    topic = (topic or "").strip() or random.choice(
+        ("猫", "ペンギン", "イルカ", "ミツバチ", "カメ")
+    )
+
+    return (
+        "次のキャラクター設定と題材を使い、会話の冒頭に自然に添えられる、"
+        "短く親しみやすい挨拶を1〜2文で作ってください。\n"
+        f"キャラクター設定: {character}\n"
+        f"題材: {topic}"
+    )
