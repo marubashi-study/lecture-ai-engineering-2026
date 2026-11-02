@@ -39,6 +39,59 @@ def test_lecture_summary():
     assert "まだありません" in tools.get_lecture_summary(99)
 
 
+def test_lecture_tools_reject_zero_and_negative_lectures():
+    for lecture in (0, -1):
+        assert "1以上の整数" in tools.get_lecture_summary(lecture)
+        assert "1以上の整数" in tools.make_quiz(lecture)
+
+
+def test_make_quiz_uses_a_term_from_the_requested_lecture(monkeypatch):
+    terms = [term for term in tools.load_glossary() if term["lecture"] == 2]
+    selected = next(term for term in terms if term["term"] == "PEFT")
+
+    def choose_term(candidates):
+        assert candidates == terms
+        return selected
+
+    monkeypatch.setattr(tools.random, "choice", choose_term)
+
+    quiz = json.loads(tools.make_quiz(2))
+
+    assert quiz == {
+        "question": f"「{selected['term']}」の意味は？",
+        "answer": selected["definition"],
+    }
+
+
+def test_make_quiz_reports_when_lecture_has_no_terms():
+    assert "第99回の用語が用語集にありません" in tools.make_quiz(99)
+
+
+def test_ice_break_uses_character_and_topic():
+    result = tools.ice_break("関西弁の宇宙飛行士", "最近の天気")
+
+    assert "関西弁の宇宙飛行士" in result
+    assert "最近の天気" in result
+    assert "1〜2文" in result
+
+
+def test_ice_break_defaults_to_a_nonhuman_living_topic(monkeypatch):
+    def choose_topic(topics):
+        assert topics == ("猫", "ペンギン", "イルカ", "ミツバチ", "カメ")
+        return "ペンギン"
+
+    monkeypatch.setattr(tools.random, "choice", choose_topic)
+    result = tools.ice_break("関西弁の宇宙飛行士")
+
+    assert "題材: ペンギン" in result
+
+
+def test_ice_break_blank_topic_defaults_to_a_nonhuman_living_thing(monkeypatch):
+    monkeypatch.setattr(tools.random, "choice", lambda topics: "ミツバチ")
+    assert "題材: ミツバチ" in tools.ice_break("関西弁の宇宙飛行士", "  ")
+    assert "キャラクター設定" in tools.ice_break("")
+
+
 def test_default_question_of_lecture1_is_answerable_from_glossary():
     """第1回の既定の質問（app.ask）は、第3回のエージェントが用語集で正しく答えられること。"""
     from app.ask import DEFAULT_QUESTION
