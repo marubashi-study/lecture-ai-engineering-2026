@@ -37,6 +37,15 @@ def test_base_tools_are_registered_and_called(monkeypatch):
     assert result.output
 
 
+def test_ice_break_is_registered():
+    model = TestModel(call_tools=[])
+    with agent.override(model=model):
+        agent.run_sync("テスト")
+
+    offered = {tool.name for tool in model.last_model_request_parameters.function_tools}
+    assert "ice_break" in offered
+
+
 def test_material_result_reaches_the_model(monkeypatch):
     hit = {"page_id": "lec02-main-p052", "lecture": 2, "page": 52, "content": "元の重みは固定"}
     monkeypatch.setattr("app.retrieval.search", lambda *args, **kwargs: [hit])
