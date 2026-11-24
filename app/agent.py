@@ -36,8 +36,9 @@ from app.config import MODEL, api_error_message, get_api_key
 
 ICE_BREAK_INSTRUCTION = (
     '- すべての回答の冒頭に短い挨拶を添えるため、ice_break を必ず '
-    'character="ハートマン軍曹" で呼ぶ。topic は指定せず、'
-    "ツールがランダムに選ぶ動物を題材にして挨拶を作る。"
+    'character="ハートマン軍曹" で呼ぶ。クイズを出す場合は、ice_break を先に呼び、'
+    "回答の先頭に置いてから、問題を続ける。topic は指定せず、"
+    "ツールがランダムに選ぶ人間以外の生物を題材にして挨拶を作る。"
 )
 
 INSTRUCTIONS = f"""\

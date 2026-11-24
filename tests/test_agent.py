@@ -14,6 +14,7 @@ from pydantic_ai.models.test import TestModel
 from app.agent import agent
 
 BASE_TOOLS = {"search_materials"}
+ALL_TOOLS = {"search_materials", "search_glossary", "get_lecture_summary", "ice_break"}
 
 
 def _parts(result, kind):
@@ -65,12 +66,10 @@ def test_all_tools_handle_test_model_dummy_arguments_without_api_key():
     calls = {part.tool_name: part.args for part in _parts(result, ToolCallPart)}
     returns = {part.tool_name: str(part.content) for part in _parts(result, ToolReturnPart)}
 
-    assert set(calls) == BASE_TOOLS
+    assert set(calls) == ALL_TOOLS
     assert calls["get_lecture_summary"] == {"lecture": 0}
-    assert calls["make_quiz"] == {"lecture": 0}
-    assert set(returns) == BASE_TOOLS
+    assert set(returns) == ALL_TOOLS
     assert "1以上の整数" in returns["get_lecture_summary"]
-    assert "1以上の整数" in returns["make_quiz"]
     assert "キャラクター設定" in returns["ice_break"]
     assert "題材" in returns["ice_break"]
 

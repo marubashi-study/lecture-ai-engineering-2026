@@ -140,6 +140,8 @@ def make_quiz(lecture: int) -> str:
     """
     if lecture < 1:
         return "講義回は1以上の整数で指定してください。"
+    if lecture > 14:
+        return "講義回は13以下の整数で指定してください。"
 
     terms = [term for term in load_glossary() if term["lecture"] == lecture]
     if not terms:
@@ -155,7 +157,7 @@ def make_quiz(lecture: int) -> str:
     )
 
 
-def ice_break(character: str, topic: str | None = None) -> str:
+def ice_break(character: str = "ハートマン軍曹", topic: str | None = None) -> str:
     """キャラクター設定と人間以外の生物を題材に、会話冒頭の挨拶を作る材料を返す。
 
     題材を省略すると、動物など人間以外の生物から選ぶ。
@@ -165,9 +167,11 @@ def ice_break(character: str, topic: str | None = None) -> str:
     character = character.strip()
     if not character:
         return "アイスブレイクを作るため、キャラクター設定を指定してください。"
-    topic = (topic or "").strip() or random.choice(
-        ("猫", "ペンギン", "イルカ", "ミツバチ", "カメ")
-    )
+    if not topic:
+        return "アイスブレイクを作るため、人間以外の動物を指定してください。"
+    # topic = (topic or "").strip() or random.choice(
+    #     ("猫", "ペンギン", "イルカ", "ミツバチ", "カメ")
+    # )
 
     return (
         "次のキャラクター設定と題材を使い、会話の冒頭に自然に添えられる、"
